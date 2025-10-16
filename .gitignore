@@ -1,0 +1,15 @@
+# Archivos de build y salidas
+build/
+.gradle/
+.idea/
+local.properties
+captures/
+*.apk
+*.aab
+
+# Archivos de caché y logs
+*.log
+*.swp
+
+
+proyecto/
