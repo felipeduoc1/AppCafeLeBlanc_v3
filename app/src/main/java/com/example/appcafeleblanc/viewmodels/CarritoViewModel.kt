@@ -1,8 +1,7 @@
-package com.example.appcafeleblanc.ui.viewmodels
+package com.example.appcafeleblanc.viewmodels
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import com.example.appcafeleblanc.R
 
 data class ProductoCarrito(
     val nombre: String,

@@ -1,4 +1,4 @@
-package com.example.appcafeleblanc.ui.screens
+package com.example.appcafeleblanc.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.appcafeleblanc.ui.viewmodels.CarritoViewModel
+import com.example.appcafeleblanc.viewmodels.CarritoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

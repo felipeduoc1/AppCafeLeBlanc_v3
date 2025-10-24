@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.rememberNavController
-import com.example.appcafeleblanc.ui.navigation.AppNavGraph
 import com.example.appcafeleblanc.ui.theme.AppCafeLeBlancTheme
 
 /**

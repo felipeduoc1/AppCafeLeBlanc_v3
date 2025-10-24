@@ -44,14 +44,22 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+
+    // Usa la plataforma Compose BOM para gestionar las versiones de Compose
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
+
+    // Dependencias de Compose que vienen del BOM
+    implementation(libs.androidx.ui) // Contiene la base de UI
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    // 🔑 CLAVE: Añadir la dependencia de UI-TEXT para KeyboardOptions, KeyboardType
+    implementation("androidx.compose.ui:ui-text")
+
     // 🚀 Navegación para Jetpack Compose
-    implementation("androidx.navigation:navigation-compose:2.8.0")
+    implementation("androidx.navigation:navigation-compose:2.9.5")
+    implementation(libs.androidx.compose.foundation)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

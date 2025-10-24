@@ -1,4 +1,4 @@
-package com.example.appcafeleblanc.ui.screens
+package com.example.appcafeleblanc.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

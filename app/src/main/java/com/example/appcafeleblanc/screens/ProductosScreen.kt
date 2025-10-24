@@ -1,4 +1,4 @@
-package com.example.appcafeleblanc.ui.screens
+package com.example.appcafeleblanc.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -14,8 +14,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.appcafeleblanc.R
-import com.example.appcafeleblanc.ui.viewmodels.CarritoViewModel
-import com.example.appcafeleblanc.ui.viewmodels.ProductoCarrito
+import com.example.appcafeleblanc.viewmodels.CarritoViewModel
+import com.example.appcafeleblanc.viewmodels.ProductoCarrito
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
