@@ -3,26 +3,42 @@ package com.example.appcafeleblanc.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect // <-- Importación necesaria
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.PasswordVisualTransformation // Para ocultar la clave
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.appcafeleblanc.viewmodels.UsuarioViewModel
-// Nota: Asume que UsuarioViewModel, UsuarioUIState y UsuarioErrores están definidos
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistroScreen(
     navController: NavController,
-    // El NavHost se encarga de inyectar y mantener este ViewModel
     viewModel: UsuarioViewModel = viewModel()
 ) {
     // 1. Observar el estado de la UI
     val estado by viewModel.estado.collectAsState()
+
+    // =======================================================
+    // NUEVO: Reacciona cuando el registro en el ViewModel es exitoso
+    // =======================================================
+    LaunchedEffect(estado.isRegisteredSuccessful) {
+        if (estado.isRegisteredSuccessful) {
+            // Limpia el estado de éxito y los inputs para la próxima vez
+            viewModel.clearLoginState()
+
+            // Navega al login
+            navController.navigate("login") {
+                // Esto es crucial: previene que el usuario vuelva al formulario de registro con 'Back'
+                popUpTo("registro") { inclusive = true }
+            }
+        }
+    }
+    // =======================================================
 
     Column(
         modifier = Modifier
@@ -31,7 +47,9 @@ fun RegistroScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 
-        // --- Título del Formulario (Opcional, para contexto) ---
+        // ... (Tu código de Text y OutlinedTextFields se mantiene sin cambios) ...
+
+        // --- Título del Formulario ---
         Text(
             text = "Registro de Usuario",
             style = MaterialTheme.typography.headlineMedium,
@@ -50,7 +68,8 @@ fun RegistroScreen(
                     Text(it, color = MaterialTheme.colorScheme.error)
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !estado.isLoading // Deshabilitar mientras carga
         )
 
         // --- Campo Correo ---
@@ -64,22 +83,24 @@ fun RegistroScreen(
                     Text(it, color = MaterialTheme.colorScheme.error)
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !estado.isLoading // Deshabilitar mientras carga
         )
 
-        // --- Campo Clave (Con PasswordVisualTransformation) ---
+        // --- Campo Clave ---
         OutlinedTextField(
             value = estado.clave,
             onValueChange = viewModel::onClaveChange,
             label = { Text("Clave") },
-            visualTransformation = PasswordVisualTransformation(), // Oculta caracteres
+            visualTransformation = PasswordVisualTransformation(),
             isError = estado.errores.clave != null,
             supportingText = {
                 estado.errores.clave?.let {
                     Text(it, color = MaterialTheme.colorScheme.error)
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !estado.isLoading // Deshabilitar mientras carga
         )
 
         // --- Campo Dirección ---
@@ -93,7 +114,8 @@ fun RegistroScreen(
                     Text(it, color = MaterialTheme.colorScheme.error)
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !estado.isLoading // Deshabilitar mientras carga
         )
 
         // --- Checkbox de Términos y Condiciones ---
@@ -102,24 +124,36 @@ fun RegistroScreen(
         ) {
             Checkbox(
                 checked = estado.aceptaTerminos,
-                onCheckedChange = viewModel::onAceptarTerminosChange
+                onCheckedChange = viewModel::onAceptarTerminosChange,
+                enabled = !estado.isLoading // Deshabilitar mientras carga
             )
             Spacer(Modifier.width(8.dp))
             Text("Acepto los términos y condiciones")
         }
 
-        // --- Botón de Envío ---
+        // --- Botón de Envío (MODIFICADO) ---
         Button(
+            // =======================================================
             onClick = {
-                // Llama a validarFormulario()
-                if (viewModel.validarFormulario()) {
-                    // Si es válido, navega a la siguiente pantalla (ej. "resumen")
-                    navController.navigate("resumen")
-                }
+                // Llama al método del ViewModel que valida y luego simula el registro.
+                viewModel.registrarUsuarioSimulado()
             },
-            modifier = Modifier.fillMaxWidth()
+            // =======================================================
+            modifier = Modifier.fillMaxWidth(),
+            // Deshabilitar si está cargando O si no acepta términos
+            enabled = !estado.isLoading && estado.aceptaTerminos
         ) {
-            Text("Registrar")
+            // =======================================================
+            // Mostrar un indicador de carga si está procesando
+            if (estado.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            } else {
+                Text("Registrar")
+            }
+            // =======================================================
         }
     }
 }

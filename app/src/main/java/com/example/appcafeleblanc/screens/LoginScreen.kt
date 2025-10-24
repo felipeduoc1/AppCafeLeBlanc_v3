@@ -8,12 +8,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel // <-- IMPORTANTE
+import com.example.appcafeleblanc.viewmodels.UsuarioViewModel // <-- IMPORTANTE
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavController) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+fun LoginScreen(
+    navController: NavController,
+    // CAMBIO CLAVE: Quita '= viewModel()' para forzar la inyección del NavGraph
+    viewModel: UsuarioViewModel
+) {
+    // 1. OBTENER EL ESTADO DESDE EL VIEWMODEL
+    val uiState by viewModel.estado.collectAsState()
+
+    // 2. EFECTO PARA NAVEGACIÓN EXITOSA
+    LaunchedEffect(uiState.isLoginSuccessful) {
+        if (uiState.isLoginSuccessful) {
+            // Limpiar el estado de éxito para evitar re-navegación
+            viewModel.clearLoginState()
+            // Navegar a la pantalla principal
+            navController.navigate("home") {
+                // Limpia la pila para que no se pueda volver al login con el botón de atrás
+                popUpTo("login") { inclusive = true }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -35,39 +54,68 @@ fun LoginScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // =================================================
+            // Usar el estado y las funciones del ViewModel
+            // =================================================
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
+                value = uiState.correo,
+                onValueChange = { viewModel.onCorreoChange(it) }, // Usar onCorreoChange
                 label = { Text("Correo electrónico") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading // Deshabilitar si está cargando
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = uiState.clave,
+                onValueChange = { viewModel.onClaveChange(it) }, // Usar onClaveChange
                 label = { Text("Contraseña") },
                 visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading // Deshabilitar si está cargando
             )
+            // =================================================
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // MOSTRAR ERROR DE LOGIN
+            uiState.loginError?.let { error ->
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
             Button(
                 onClick = {
-                    // Aquí puedes simular un login o mostrar un mensaje
-                    navController.navigate("home")
+                    viewModel.login() // Llamar a la función de login del ViewModel
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                // Deshabilitar si está cargando o si los campos están vacíos
+                enabled = !uiState.isLoading && uiState.correo.isNotBlank() && uiState.clave.isNotBlank()
             ) {
-                Text("Ingresar")
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text("Ingresar")
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextButton(onClick = { navController.popBackStack() }) {
-                Text("Volver al inicio")
+            TextButton(
+                onClick = {
+                    // Asegúrate de que "registro" es la ruta correcta en tu NavGraph.kt
+                    navController.navigate("registro")
+                }
+            ) {
+                Text("¿No tienes cuenta? Regístrate aquí")
             }
         }
     }

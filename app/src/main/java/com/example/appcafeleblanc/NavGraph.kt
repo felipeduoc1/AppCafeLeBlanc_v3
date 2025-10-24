@@ -8,16 +8,17 @@ import androidx.navigation.compose.composable
 import com.example.appcafeleblanc.screens.CarritoScreen
 import com.example.appcafeleblanc.screens.ContactoScreen
 import com.example.appcafeleblanc.screens.HomeScreen
-import com.example.appcafeleblanc.screens.LoginScreen
+import com.example.appcafeleblanc.screens.LoginScreen // Importación necesaria
 import com.example.appcafeleblanc.screens.NosotrosScreen
 import com.example.appcafeleblanc.screens.ProductosScreen
+import com.example.appcafeleblanc.screens.RegistroScreen // Importación necesaria
 import com.example.appcafeleblanc.viewmodels.CarritoViewModel
 import com.example.appcafeleblanc.viewmodels.UsuarioViewModel
-import com.example.appcafeleblanc.screens.RegistroScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
     val carritoViewModel: CarritoViewModel = viewModel()
+    // Creamos la instancia UNA SOLA VEZ para que se comparta el estado de registro/login
     val usuarioViewModel: UsuarioViewModel = viewModel()
 
     NavHost(
@@ -27,9 +28,16 @@ fun AppNavGraph(navController: NavHostController) {
         composable("home") { HomeScreen(navController) }
         composable("productos") { ProductosScreen(navController, carritoViewModel) }
         composable("nosotros") { NosotrosScreen(navController) }
-        composable("login") { LoginScreen(navController) }
+
+        // =======================================================
+        // MODIFICADO: Inyectamos el usuarioViewModel
+        composable("login") { LoginScreen(navController, usuarioViewModel) }
+        // =======================================================
+
         composable("carrito") { CarritoScreen(navController, carritoViewModel) }
         composable("contacto") { ContactoScreen(navController) }
-        composable("registro") {RegistroScreen(navController, usuarioViewModel)}
+
+        // Ya estabas inyectando el ViewModel aquí, lo cual es correcto.
+        composable("registro") { RegistroScreen(navController, usuarioViewModel) }
     }
 }

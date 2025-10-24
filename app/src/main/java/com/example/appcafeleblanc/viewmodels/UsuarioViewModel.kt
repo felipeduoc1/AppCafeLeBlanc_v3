@@ -1,12 +1,15 @@
 package com.example.appcafeleblanc.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.appcafeleblanc.model.UsuarioErrores
 import com.example.appcafeleblanc.model.UsuarioUIState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class UsuarioViewModel : ViewModel() {
     // MutableStateFlow para el estado interno y mutable
@@ -15,11 +18,18 @@ class UsuarioViewModel : ViewModel() {
     // StateFlow público e inmutable para la UI
     val estado: StateFlow<UsuarioUIState> = _estado.asStateFlow()
 
+    // =======================================================
+    // ** LÓGICA DE SIMULACIÓN (Reemplazar con lógica real de persistencia) **
+    // ESTAS VARIABLES MANTIENEN EL ÚLTIMO USUARIO REGISTRADO EN MEMORIA
+    private var MOCKED_REGISTERED_EMAIL = "usuario@cafe.com"
+    private var MOCKED_REGISTERED_PASSWORD = "password123"
+    // ** FIN LÓGICA DE SIMULACIÓN **
+    // =======================================================
+
     fun onNombreChange(valor: String) {
         _estado.update {
             it.copy(
                 nombre = valor,
-                // Al cambiar el valor, limpiamos el error asociado al campo
                 errores = it.errores.copy(nombre = null)
             )
         }
@@ -29,7 +39,8 @@ class UsuarioViewModel : ViewModel() {
         _estado.update {
             it.copy(
                 correo = valor,
-                errores = it.errores.copy(correo = null)
+                errores = it.errores.copy(correo = null),
+                loginError = null // Limpiar error de login al modificar
             )
         }
     }
@@ -38,7 +49,8 @@ class UsuarioViewModel : ViewModel() {
         _estado.update {
             it.copy(
                 clave = valor,
-                errores = it.errores.copy(clave = null)
+                errores = it.errores.copy(clave = null),
+                loginError = null // Limpiar error de login al modificar
             )
         }
     }
@@ -55,12 +67,98 @@ class UsuarioViewModel : ViewModel() {
     fun onAceptarTerminosChange(valor: Boolean) {
         _estado.update {
             it.copy(
-                // Simplemente actualiza el valor booleano
                 aceptaTerminos = valor
             )
         }
     }
 
+    // =======================================================
+    // NUEVO: Métodos para manejar el estado de las pantallas
+    // =======================================================
+    fun clearLoginState() {
+        _estado.update {
+            it.copy(
+                isLoginSuccessful = false,
+                loginError = null,
+                isLoading = false,
+                correo = "", // Limpiar los inputs
+                clave = ""   // Limpiar los inputs
+            )
+        }
+    }
+
+    // =======================================================
+    // NUEVO: Método de Login
+    // =======================================================
+    fun login() {
+        // Validación básica de campos no vacíos antes de intentar el login
+        if (_estado.value.correo.isBlank() || _estado.value.clave.isBlank()) {
+            _estado.update {
+                it.copy(loginError = "Por favor, ingresa correo y contraseña.")
+            }
+            return
+        }
+
+        // 1. Iniciar el estado de carga
+        _estado.update { it.copy(isLoading = true, loginError = null) }
+
+        // 2. Ejecutar la lógica de autenticación en un coroutine
+        viewModelScope.launch {
+            // SIMULACIÓN DE RETARDO DE RED/BASE DE DATOS
+            delay(1500)
+
+            val estadoActual = _estado.value
+
+            // Lógica para verificar el usuario guardado (SIMULADA)
+            if (estadoActual.correo == MOCKED_REGISTERED_EMAIL && estadoActual.clave == MOCKED_REGISTERED_PASSWORD) {
+                // Éxito
+                _estado.update {
+                    it.copy(
+                        isLoading = false,
+                        isLoginSuccessful = true,
+                        loginError = null
+                    )
+                }
+            } else {
+                // Falla
+                _estado.update {
+                    it.copy(
+                        isLoading = false,
+                        isLoginSuccessful = false,
+                        loginError = "Credenciales incorrectas. Verifica tu correo o contraseña."
+                    )
+                }
+            }
+        }
+    }
+
+
+    // =======================================================
+    // MODIFICADO: Método de Registro Simulado
+    // Actualiza las credenciales simuladas al registrar.
+    // =======================================================
+    fun registrarUsuarioSimulado() {
+        if (validarFormulario()) {
+            _estado.update { it.copy(isLoading = true) }
+            viewModelScope.launch {
+                delay(1500)
+                // SIMULACIÓN: Guardamos el usuario registrado como el "único"
+                MOCKED_REGISTERED_EMAIL = _estado.value.correo
+                MOCKED_REGISTERED_PASSWORD = _estado.value.clave
+
+                _estado.update {
+                    it.copy(
+                        isLoading = false,
+                        isRegisteredSuccessful = true
+                    )
+                }
+            }
+        }
+    }
+
+    // =======================================================
+    // TU FUNCIÓN ORIGINAL validarFormulario (se mantiene)
+    // =======================================================
     fun validarFormulario(): Boolean {
         val estadoActual = _estado.value
         // 1. Definición de Errores: Se evalúa cada campo
@@ -77,23 +175,19 @@ class UsuarioViewModel : ViewModel() {
         )
 
         // 2. Comprobación de Existencia de Errores:
-        // Crea una lista solo con los mensajes de error que NO son null.
-        // Si la lista no está vacía, es que hay errores.
         val hayErrores = listOfNotNull(
             errores.nombre,
             errores.correo,
             errores.clave,
             errores.direccion
-        ).isNotEmpty() // <-- Esta función comprueba si la lista contiene elementos
+        ).isNotEmpty()
 
         // 3. Actualizar el Estado de la UI:
-        // Publicamos los nuevos errores para que la UI los muestre
         _estado.update {
             it.copy(errores = errores)
         }
 
         // 4. Retornar Resultado:
-        // Retorna true si NO hay errores (si hayErrores es false)
         return !hayErrores
     }
 }
