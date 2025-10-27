@@ -10,84 +10,87 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color                    // AGREGADO: import necesario
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// --- ESQUEMA DE COLOR OSCURO (DarkColorScheme) ---
-// Base: Negro Tinta (Sumi) con acentos de Matcha y Sakura
+// === TEMAS EXISTENTES ===
 private val DarkColorScheme = darkColorScheme(
-    // Colores Principales del Tema Oscuro
-    primary = VerdeMatcha,             // Color principal (botones, iconos activos)
-    secondary = MarronTostado,        // Color secundario (acentos, elementos menos prominentes)
-    tertiary = RosaSakura,            // Color terciario (destacados, notificaciones)
-
-    // Fondo y Superficie
-    background = NegroTinta,          // Fondo de la pantalla
-    surface = CafeEspresso,           // Superficie de cards, diálogos, etc.
-
-    // Colores "On" (Texto e Iconos)
-    onPrimary = BlancoWashi,          // Texto sobre VerdeMatcha
-    onSecondary = BlancoWashi,        // Texto sobre MarronTostado
-    onTertiary = NegroTinta,          // Texto sobre RosaSakura
-    onBackground = BlancoWashi,       // Texto sobre NegroTinta
-    onSurface = BlancoWashi,          // Texto sobre CafeEspresso
+    primary = VerdeMatcha,
+    secondary = MarronTostado,
+    tertiary = RosaSakura,
+    background = NegroTinta,
+    surface = CafeEspresso,
+    onPrimary = BlancoWashi,
+    onSecondary = BlancoWashi,
+    onTertiary = NegroTinta,
+    onBackground = BlancoWashi,
+    onSurface = BlancoWashi,
 )
 
-// --- ESQUEMA DE COLOR CLARO (LightColorScheme) ---
-// Base: Blanco Washi con acentos de Matcha y Marrón
 private val LightColorScheme = lightColorScheme(
-    // Colores Principales del Tema Claro
-    primary = VerdeMatcha,            // Color principal (botones, iconos activos)
-    secondary = MarronTostado,        // Color secundario (acentos, elementos menos prominentes)
-    tertiary = RosaSakura,            // Color terciario (destacados, notificaciones)
+    primary = VerdeMatcha,
+    secondary = MarronTostado,
+    tertiary = RosaSakura,
+    background = BlancoWashi,
+    surface = BeigeCrema,
+    onPrimary = NegroTinta,
+    onSecondary = BlancoWashi,
+    onTertiary = NegroTinta,
+    onBackground = NegroTinta,
+    onSurface = NegroTinta,
+    outline = BordeSuave,
+    inversePrimary = NaranjaCafe,
+    surfaceVariant = CremaSuave,
+)
 
-    // Fondo y Superficie
-    background = BlancoWashi,         // Fondo de la pantalla
-    surface = BeigeCrema,             // Superficie de cards, diálogos, etc.
-
-    // Colores "On" (Texto e Iconos)
-    onPrimary = NegroTinta,           // Texto sobre VerdeMatcha
-    onSecondary = BlancoWashi,        // Texto sobre MarronTostado
-    onTertiary = NegroTinta,          // Texto sobre RosaSakura
-    onBackground = NegroTinta,        // Texto sobre BlancoWashi
-    onSurface = NegroTinta,           // Texto sobre BeigeCrema
+// === AGREGADO: NUEVO ESQUEMA “LEBLANC” ===
+private val LeBlancColorScheme = lightColorScheme(
+    primary = RojoLeBlanc,        // Color dominante (botones, acentos)
+    secondary = AzulLeBlanc,      // Acentos visuales
+    tertiary = GrisLeBlanc,       // Elementos secundarios o de fondo
+    background = BlancoLeBlanc,   // Fondo limpio
+    surface = Color(0xFFF8F8F8),  // Superficies de tarjetas (usa Color — import agregado)
+    onPrimary = BlancoLeBlanc,    // Texto sobre rojo vino
+    onSecondary = BlancoLeBlanc,  // Texto sobre azul
+    onTertiary = NegroLeBlanc,    // Texto sobre gris
+    onBackground = NegroLeBlanc,  // Texto general
+    onSurface = NegroLeBlanc,     // Texto sobre tarjetas
+    outline = GrisLeBlanc,
+    inversePrimary = VinoOscuro
 )
 
 @Composable
 fun AppCafeLeBlancTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Desactivamos el color dinámico por defecto para asegurar que se usen nuestros colores
     dynamicColor: Boolean = false,
+    useLeBlancTheme: Boolean = true, // AGREGADO: nuevo parámetro para activar el tema del logo
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        // Opción para mantener el color dinámico si es necesario, aunque generalmente se desactiva con un tema de marca.
+        useLeBlancTheme -> LeBlancColorScheme
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
 
-    // --- Configuración de la Barra de Estado y Navegación (Opcional pero recomendado) ---
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // Configura el color de la barra de estado y el color del contenido (claro u oscuro)
             window.statusBarColor = colorScheme.surface.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
 
-    // --- Aplicación del Tema Material 3 ---
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography, // Asume que tienes un archivo Typography.kt
+        typography = Typography,
         content = content
     )
 }
