@@ -30,7 +30,11 @@ fun CarritoScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             if (carrito.isEmpty()) {
-                Text("Tu carrito está vacío 😅")
+                Text(
+                    text = "No hay productos en el carrito",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.weight(1f))
             } else {
                 LazyColumn(
                     modifier = Modifier.weight(1f),
@@ -50,19 +54,29 @@ fun CarritoScreen(
                         }
                     }
                 }
+            }
 
-                Divider()
+            Divider()
 
+            // BLOQUE INFERIOR (siempre visible)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // Total (se mantiene abajo)
                 Text(
-                    text = "Total: $${carritoViewModel.total()}",
+                    text = "Total: $${if (carrito.isEmpty()) 0 else carritoViewModel.total()}",
                     style = MaterialTheme.typography.titleMedium
                 )
 
-                Button(
-                    onClick = { carritoViewModel.vaciarCarrito() },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Vaciar Carrito")
+                // Botones
+                if (carrito.isNotEmpty()) {
+                    Button(
+                        onClick = { carritoViewModel.vaciarCarrito() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Vaciar Carrito")
+                    }
                 }
 
                 Button(
