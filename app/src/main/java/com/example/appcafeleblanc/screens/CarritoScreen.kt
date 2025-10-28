@@ -48,8 +48,19 @@ fun CarritoScreen(
                                     .fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(producto.nombre)
-                                Text(producto.precio)
+                                // PRIMER TEXT: Muestra el nombre
+                                Text(
+                                    text = producto.nombre,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+
+                                // SEGUNDO TEXT: Muestra el precio convertido a String y con formato
+                                Text(
+                                    text = "$${producto.precio}", // ✨ CORRECCIÓN DE SINTAXIS y TIPO
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                )
                             }
                         }
                     }

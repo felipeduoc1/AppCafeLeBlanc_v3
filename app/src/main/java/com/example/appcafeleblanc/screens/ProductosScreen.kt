@@ -15,21 +15,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.appcafeleblanc.R
 import com.example.appcafeleblanc.viewmodels.CarritoViewModel
-import com.example.appcafeleblanc.viewmodels.ProductoCarrito
+import com.example.appcafeleblanc.viewmodels.ProductosViewModel // <-- NUEVO: Importamos el ViewModel de Productos
+import com.example.appcafeleblanc.model.Producto
+// NOTA: Ya no importamos 'listaProductos', el ViewModel lo gestiona.
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductosScreen(
     navController: NavController,
-    carritoViewModel: CarritoViewModel = viewModel()
+    // Obtenemos las instancias de los ViewModels necesarios
+    carritoViewModel: CarritoViewModel = viewModel(),
+    productosViewModel: ProductosViewModel = viewModel() // <-- NUEVO ViewModel de Productos
 ) {
 
-    val productos = listOf(
-        ProductoCarrito("Espresso", "Café intenso de sabor fuerte", "$2.000", R.drawable.logo),
-        ProductoCarrito("Café Latte", "Mezcla suave con leche espumada", "$2.500", R.drawable.logo),
-        ProductoCarrito("Capuccino", "Con espuma de leche y canela", "$2.700", R.drawable.logo),
-        ProductoCarrito("Muffin de Arándanos", "Recién horneado, ideal con café", "$1.800", R.drawable.logo)
-    )
+    // ⭐️ OBTENEMOS la lista de productos del ViewModel ⭐️
+    val productos: List<Producto> = productosViewModel.productos
 
     Scaffold(
         topBar = {
@@ -45,7 +46,7 @@ fun ProductosScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(productos) { producto ->
@@ -59,8 +60,9 @@ fun ProductosScreen(
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        // Usamos un logo de placeholder
                         Image(
-                            painter = painterResource(id = producto.imagen),
+                            painter = painterResource(id = R.drawable.logo),
                             contentDescription = producto.nombre,
                             modifier = Modifier
                                 .size(80.dp)
@@ -72,7 +74,10 @@ fun ProductosScreen(
                             Text(producto.nombre, style = MaterialTheme.typography.titleMedium)
                             Text(producto.descripcion, style = MaterialTheme.typography.bodyMedium)
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text(producto.precio, style = MaterialTheme.typography.bodyLarge)
+                            // Formato de precio
+                            Text("$${producto.precio}", style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.primary
+                            ))
                             Spacer(modifier = Modifier.height(8.dp))
                             Button(
                                 onClick = { carritoViewModel.agregarProducto(producto) },
@@ -91,10 +96,12 @@ fun ProductosScreen(
                     onClick = { navController.popBackStack() },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 60.dp)
+                        .padding(horizontal = 60.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                 ) {
                     Text("Volver al inicio")
                 }
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }

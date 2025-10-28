@@ -2,23 +2,24 @@ package com.example.appcafeleblanc.viewmodels
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+// 1. IMPORTAMOS el modelo de Producto de la fuente correcta
+import com.example.appcafeleblanc.model.Producto
 
-data class ProductoCarrito(
-    val nombre: String,
-    val descripcion: String,
-    val precio: String,
-    val imagen: Int
-)
+// 2. ELIMINAR O COMENTAR la data class ProductoCarrito de aquí
 
 class CarritoViewModel : ViewModel() {
-    private val _carrito = mutableStateListOf<ProductoCarrito>()
-    val carrito: List<ProductoCarrito> get() = _carrito
 
-    fun agregarProducto(producto: ProductoCarrito) {
+    // 3. ACTUALIZAMOS: La lista debe ser de tipo Producto
+    private val _carrito = mutableStateListOf<Producto>()
+    val carrito: List<Producto> get() = _carrito
+
+    // 3. ACTUALIZAMOS: El argumento de la función debe ser de tipo Producto
+    fun agregarProducto(producto: Producto) {
         _carrito.add(producto)
     }
 
-    fun eliminarProducto(producto: ProductoCarrito) {
+    // 3. ACTUALIZAMOS: El argumento de la función debe ser de tipo Producto
+    fun eliminarProducto(producto: Producto) {
         _carrito.remove(producto)
     }
 
@@ -26,10 +27,8 @@ class CarritoViewModel : ViewModel() {
         _carrito.clear()
     }
 
+    // 4. SIMPLIFICAMOS: Como 'precio' en Producto es Int, solo necesitas sumarlo
     fun total(): Int {
-        // Elimina el signo $ y los puntos, y suma los precios
-        return _carrito.sumOf {
-            it.precio.replace("$", "").replace(".", "").trim().toIntOrNull() ?: 0
-        }
+        return _carrito.sumOf { it.precio }
     }
 }
