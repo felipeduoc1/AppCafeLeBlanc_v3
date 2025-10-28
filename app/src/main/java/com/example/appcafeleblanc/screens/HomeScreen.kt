@@ -1,14 +1,17 @@
 package com.example.appcafeleblanc.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color // Asegúrate de importar Color
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor // ⭐ IMPORTACIÓN CORREGIDA
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.appcafeleblanc.R
@@ -16,115 +19,171 @@ import com.example.appcafeleblanc.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
-    // 1. Usa Scaffold con colores del tema
+
     Scaffold(
-        // Cambiamos el color de la barra superior para que se vea integrado o resalte
         topBar = {
             TopAppBar(
                 title = {
-                    // 2. Aplica el estilo de tipografía para títulos grandes
                     Text(
                         "Café Le Blanc",
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.Bold
+                        )
                     )
                 },
-                // Usa un color neutro o el color de superficie para la TopBar
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                    containerColor = Color.Transparent,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         },
-        // 3. Usa el color de fondo definido en el tema
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background // Fondo oscuro
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize()
-                // Opcional: Si quieres que el Column tenga un color diferente al fondo
-                // .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Logo principal
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo Café Le Blanc",
+
+            // --- 1. SECCIÓN PRINCIPAL (HERO/IMAGEN DE FONDO) ---
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp),
-                contentScale = ContentScale.Fit
-            )
-
-            // Texto de bienvenida
-            Text(
-                text = "Bienvenido a Café Le Blanc ☕",
-                // 4. Aplica el estilo de tipografía para subtítulos/headlines
-                style = MaterialTheme.typography.headlineSmall,
-                // 5. Aplica el color del tema para el texto principal (NegroTinta o onBackground)
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Botones de navegación principales
-
-            // Botón Principal: Usa el color 'primary' (VerdeMatcha)
-            Button(
-                onClick = { navController.navigate("productos") },
-                modifier = Modifier.fillMaxWidth(0.8f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary, // Verde Matcha
-                    contentColor = MaterialTheme.colorScheme.onPrimary // Texto sobre Matcha
-                )
+                    .height(280.dp)
             ) {
-                // 6. Aplica el estilo de tipografía para botones (labelLarge)
-                Text("Ver Productos", style = MaterialTheme.typography.labelLarge)
+                Image(
+                    // ⚠️ Asegúrate de que R.drawable.logo sea tu imagen principal del café
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = "Fondo del Café",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                // Overlay de color sutil para oscurecer la imagen
+                Spacer(modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.2f))
+                )
+
+                // Texto de bienvenida sobre la imagen
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(24.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "Bienvenido a",
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+                    Text(
+                        text = "Le Blanc ☕",
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.White
+                    )
+                }
             }
 
-            // Botones Secundarios: Usa el color 'secondary' (MarronTostado) o 'surface'
-            NavigationButton(
-                text = "Ver Carrito 🛒",
-                onClick = { navController.navigate("carrito") },
-                color = MaterialTheme.colorScheme.secondary // Marrón Tostado
-            )
-            NavigationButton(
-                text = "Nosotros",
-                onClick = { navController.navigate("nosotros") },
-                color = MaterialTheme.colorScheme.surfaceVariant // Color neutro más claro
-            )
-            NavigationButton(
-                text = "Contacto",
-                onClick = { navController.navigate("contacto") },
-                color = MaterialTheme.colorScheme.secondaryContainer // Otro color secundario
-            )
-            NavigationButton(
-                text = "Iniciar Sesión",
-                onClick = { navController.navigate("login") },
-                color = MaterialTheme.colorScheme.tertiary // Rosa Sakura (para destacar el login/registro)
-            )
-            NavigationButton(
-                text = "Registrarse",
-                onClick = { navController.navigate("registro") },
-                color = MaterialTheme.colorScheme.secondaryContainer // Otro color secundario
-            )
+            // --- 2. SECCIÓN DE BOTONES (TARJETA FLOTANTE) ---
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = (-40).dp) // Efecto flotante
+                    .padding(horizontal = 24.dp),
+                shape = MaterialTheme.shapes.large,
+                color = MaterialTheme.colorScheme.surface,
+                shadowElevation = 8.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(vertical = 24.dp, horizontal = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Botón Principal: Ver Productos (Rojo LeBlanc)
+                    Button(
+                        onClick = { navController.navigate("productos") },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        contentPadding = PaddingValues(vertical = 14.dp)
+                    ) {
+                        Text("Ver Menú Completo", style = MaterialTheme.typography.labelLarge)
+                    }
+
+                    // Botón Secundario: Ver Carrito (Contorno)
+                    OutlinedButton(
+                        onClick = { navController.navigate("carrito") },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        ),
+                        border = ButtonDefaults.outlinedButtonBorder.copy(
+                            // Usa SolidColor para el borde
+                            brush = SolidColor(MaterialTheme.colorScheme.primary)
+                        ),
+                        contentPadding = PaddingValues(vertical = 14.dp)
+                    ) {
+                        Text("Ver Carrito 🛒", style = MaterialTheme.typography.labelLarge)
+                    }
+
+                    Divider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+
+                    // Fila de Navegación Rápida
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        QuickNavLink(text = "Nosotros", onClick = { navController.navigate("nosotros") })
+                        QuickNavLink(text = "Contacto", onClick = { navController.navigate("contacto") })
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Botones de Sesión y Registro (parte inferior)
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Login (Color Terciario: Azul Eléctrico)
+                TextButton(onClick = { navController.navigate("login") }) {
+                    Text("Iniciar Sesión", color = MaterialTheme.colorScheme.tertiary)
+                }
+                // Registro (Color Secundario: Vino Oscuro)
+                TextButton(onClick = { navController.navigate("registro") }) {
+                    Text("Registrarse", color = MaterialTheme.colorScheme.secondary)
+                }
+                // NUEVO BOTÓN: VER RESUMEN
+                TextButton(onClick = { navController.navigate("resumen") }) {
+                    // Usamos un color distinto (onSurfaceVariant) para que no compita
+                    Text("Resumen", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
+                }
+
+            }
         }
     }
 }
 
-// Composable helper para simplificar los botones de navegación
+// Composable helper para enlaces rápidos (TextButton)
 @Composable
-fun NavigationButton(text: String, onClick: () -> Unit, color: Color) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(0.8f),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = color,
-            contentColor = MaterialTheme.colorScheme.contentColorFor(color)
+fun QuickNavLink(text: String, onClick: () -> Unit) {
+    TextButton(onClick = onClick) {
+        Text(
+            text,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-    ) {
-        Text(text, style = MaterialTheme.typography.labelLarge)
     }
 }
