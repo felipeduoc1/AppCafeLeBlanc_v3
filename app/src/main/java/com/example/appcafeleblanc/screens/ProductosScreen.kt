@@ -4,6 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,6 +19,7 @@ import com.example.appcafeleblanc.R
 import com.example.appcafeleblanc.viewmodels.CarritoViewModel
 import com.example.appcafeleblanc.viewmodels.ProductosViewModel // <-- NUEVO: Importamos el ViewModel de Productos
 import com.example.appcafeleblanc.model.Producto
+
 // NOTA: Ya no importamos 'listaProductos', el ViewModel lo gestiona.
 
 
@@ -28,19 +31,28 @@ fun ProductosScreen(
     carritoViewModel: CarritoViewModel = viewModel(),
     productosViewModel: ProductosViewModel = viewModel() // <-- NUEVO ViewModel de Productos
 ) {
-
     // ⭐️ OBTENEMOS la lista de productos del ViewModel ⭐️
     val productos: List<Producto> = productosViewModel.productos
-
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Nuestros Productos") })
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate("carrito") }) {
-                Text("🛒")
+            TopAppBar(title = { Text("Nuestros Productos") },
+            actions = {
+                IconButton(onClick = { navController.navigate("carrito") }) {
+                    Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito")
+                }
             }
-        }
+            )
+
+        },
+
+        //Boton antiguo flotante
+//        floatingActionButton = {
+//            FloatingActionButton(onClick = { navController.navigate("carrito") }) {
+//                Text("🛒")
+//            }
+//        }
+
+
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -76,7 +88,7 @@ fun ProductosScreen(
                             Spacer(modifier = Modifier.height(4.dp))
                             // Formato de precio
                             Text("$${producto.precio}", style = MaterialTheme.typography.bodyLarge.copy(
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.onSecondary
                             ))
                             Spacer(modifier = Modifier.height(8.dp))
                             Button(
