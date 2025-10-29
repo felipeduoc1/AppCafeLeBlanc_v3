@@ -15,7 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.appcafeleblanc.R
+//import com.example.appcafeleblanc.R
 import com.example.appcafeleblanc.viewmodels.CarritoViewModel
 import com.example.appcafeleblanc.viewmodels.ProductosViewModel // <-- NUEVO: Importamos el ViewModel de Productos
 import com.example.appcafeleblanc.model.Producto
@@ -73,14 +73,14 @@ fun ProductosScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         // Usamos un logo de placeholder
-                        Image(
-                            painter = painterResource(id = R.drawable.logo),
-                            contentDescription = producto.nombre,
-                            modifier = Modifier
-                                .size(80.dp)
-                                .padding(end = 16.dp),
-                            contentScale = ContentScale.Fit
-                        )
+//                        Image(
+//                            painter = painterResource(id = R.drawable.logo),
+//                            contentDescription = producto.nombre,
+//                            modifier = Modifier
+//                                .size(80.dp)
+//                                .padding(end = 16.dp),
+//                            contentScale = ContentScale.Fit
+//                        )
 
                         Column(modifier = Modifier.weight(1f)) {
                             Text(producto.nombre, style = MaterialTheme.typography.titleMedium)

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.appcafeleblanc"
+    namespace = "com.example.apirest" // ⚠️ Paquete unificado
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.appcafeleblanc"
+        applicationId = "com.example.apirest"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -45,21 +45,27 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
 
-    // Usa la plataforma Compose BOM para gestionar las versiones de Compose
     implementation(platform(libs.androidx.compose.bom))
 
-    // Dependencias de Compose que vienen del BOM
-    implementation(libs.androidx.ui) // Contiene la base de UI
+    implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-    // 🔑 CLAVE: Añadir la dependencia de UI-TEXT para KeyboardOptions, KeyboardType
     implementation("androidx.compose.ui:ui-text")
 
-    // 🚀 Navegación para Jetpack Compose
+    // 🚀 Navegación (si la usas después)
     implementation("androidx.navigation:navigation-compose:2.9.5")
-    implementation(libs.androidx.compose.foundation)
+
+    // ✅ CORRECCIÓN FINAL: ViewModel para Compose sin espacios
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+
+    // Retrofit y Gson Converter
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+    // Corrutinas
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
