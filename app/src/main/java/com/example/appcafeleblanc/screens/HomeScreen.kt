@@ -14,7 +14,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-//import com.example.appcafeleblanc.R
+import com.example.appcafeleblanc.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,25 +45,47 @@ fun HomeScreen(navController: NavController) {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             // --- 1. SECCIÓN PRINCIPAL (HERO/IMAGEN DE FONDO) ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(280.dp)
             ) {
-//                Image(
-//                    // ⚠️ Asegúrate de que R.drawable.logo sea tu imagen principal del café
-//                    painter = painterResource(id = R.drawable.logo),
-//                    contentDescription = "Fondo del Café",
-//                    contentScale = ContentScale.Crop,
-//                    modifier = Modifier.fillMaxSize()
-//                )
+                Image(
+                    // ⚠️ Asegúrate de que R.drawable.logo sea tu imagen principal del café
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = "Fondo del Café",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+
                 // Overlay de color sutil para oscurecer la imagen
                 Spacer(modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.2f))
                 )
 
+                // Texto de bienvenida sobre la imagen
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(24.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "Bienvenido a",
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+                    Text(
+                        text = "Le Blanc ☕",
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.White
+                    )
+                }
             }
 
             // --- 2. SECCIÓN DE BOTONES (TARJETA FLOTANTE) ---
@@ -100,7 +122,7 @@ fun HomeScreen(navController: NavController) {
                         onClick = { navController.navigate("carrito") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onPrimary
+                            contentColor = MaterialTheme.colorScheme.primary
                         ),
                         border = ButtonDefaults.outlinedButtonBorder.copy(
                             // Usa SolidColor para el borde
