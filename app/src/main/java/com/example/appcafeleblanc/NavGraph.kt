@@ -9,12 +9,15 @@ import com.example.appcafeleblanc.screens.CarritoScreen
 import com.example.appcafeleblanc.screens.ContactoScreen
 import com.example.appcafeleblanc.screens.HomeScreen
 import com.example.appcafeleblanc.screens.LoginScreen
+import com.example.appcafeleblanc.screens.RegistroScreen
 import com.example.appcafeleblanc.screens.NosotrosScreen
 import com.example.appcafeleblanc.screens.ProductosScreen
-import com.example.appcafeleblanc.screens.RegistroScreen
+import com.example.appcafeleblanc.screens.ResumenScreen
 import com.example.appcafeleblanc.viewmodels.CarritoViewModel
 import com.example.appcafeleblanc.viewmodels.UsuarioViewModel
-import com.example.appcafeleblanc.ui.screens.ResumenScreen // Asegúrate de que esta importación sea correcta
+
+
+// Asegúrate de que esta importación sea correcta
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {

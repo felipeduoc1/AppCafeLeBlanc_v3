@@ -2,192 +2,141 @@ package com.example.appcafeleblanc.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.appcafeleblanc.model.UsuarioErrores
-import com.example.appcafeleblanc.model.UsuarioUIState
-import kotlinx.coroutines.delay
+import com.example.appcafeleblanc.api.RetrofitClient
+import com.example.appcafeleblanc.model.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class UsuarioViewModel : ViewModel() {
-    // MutableStateFlow para el estado interno y mutable
+
+    // 1. Manejo del Estado de la UI (Sincronizado con RegistroScreen: usa 'estado')
     private val _estado = MutableStateFlow(UsuarioUIState())
+    val estado: StateFlow<UsuarioUIState> = _estado // Se llama 'estado'
 
-    // StateFlow público e inmutable para la UI
-    val estado: StateFlow<UsuarioUIState> = _estado.asStateFlow()
+    // --- MANEJADORES DE CAMBIO DE CAMPOS ---
 
-    // =======================================================
-    // ** LÓGICA DE SIMULACIÓN (Reemplazar con lógica real de persistencia) **
-    // ESTAS VARIABLES MANTIENEN EL ÚLTIMO USUARIO REGISTRADO EN MEMORIA
-    private var MOCKED_REGISTERED_EMAIL = "usuario@cafe.com"
-    private var MOCKED_REGISTERED_PASSWORD = "password123"
-    // ** FIN LÓGICA DE SIMULACIÓN **
-    // =======================================================
-
-    fun onNombreChange(valor: String) {
-        _estado.update {
-            it.copy(
-                nombre = valor,
-                errores = it.errores.copy(nombre = null)
-            )
-        }
+    // Al cambiar un campo, limpiamos los errores de validación locales (incluido 'terminos')
+    fun onNombreChange(newValue: String) {
+        _estado.value = _estado.value.copy(nombre = newValue, errores = UsuarioErrores())
     }
 
-    fun onCorreoChange(valor: String) {
-        _estado.update {
-            it.copy(
-                correo = valor,
-                errores = it.errores.copy(correo = null),
-                loginError = null // Limpiar error de login al modificar
-            )
-        }
+    fun onCorreoChange(newValue: String) {
+        _estado.value = _estado.value.copy(correo = newValue, errores = UsuarioErrores())
     }
 
-    fun onClaveChange(valor: String) {
-        _estado.update {
-            it.copy(
-                clave = valor,
-                errores = it.errores.copy(clave = null),
-                loginError = null // Limpiar error de login al modificar
-            )
-        }
+    fun onClaveChange(newValue: String) {
+        _estado.value = _estado.value.copy(clave = newValue, errores = UsuarioErrores())
     }
 
-    fun onDireccionChange(valor: String) {
-        _estado.update {
-            it.copy(
-                direccion = valor,
-                errores = it.errores.copy(direccion = null)
-            )
-        }
+    fun onDireccionChange(newValue: String) {
+        _estado.value = _estado.value.copy(direccion = newValue, errores = UsuarioErrores())
     }
 
-    fun onAceptarTerminosChange(valor: Boolean) {
-        _estado.update {
-            it.copy(
-                aceptaTerminos = valor
-            )
-        }
-    }
+    // --- FUNCIONES DE API ---
 
-    // =======================================================
-    // NUEVO: Métodos para manejar el estado de las pantallas
-    // =======================================================
-    fun clearLoginState() {
-        _estado.update {
-            it.copy(
-                isLoginSuccessful = false,
-                loginError = null,
-                isLoading = false,
-                correo = "", // Limpiar los inputs
-                clave = ""   // Limpiar los inputs
-            )
-        }
-    }
-
-    // =======================================================
-    // NUEVO: Método de Login
-    // =======================================================
-    fun login() {
-        // Validación básica de campos no vacíos antes de intentar el login
-        if (_estado.value.correo.isBlank() || _estado.value.clave.isBlank()) {
-            _estado.update {
-                it.copy(loginError = "Por favor, ingresa correo y contraseña.")
-            }
-            return
-        }
-
-        // 1. Iniciar el estado de carga
-        _estado.update { it.copy(isLoading = true, loginError = null) }
-
-        // 2. Ejecutar la lógica de autenticación en un coroutine
-        viewModelScope.launch {
-            // SIMULACIÓN DE RETARDO DE RED/BASE DE DATOS
-            delay(1500)
-
-            val estadoActual = _estado.value
-
-            // Lógica para verificar el usuario guardado (SIMULADA)
-            if (estadoActual.correo == MOCKED_REGISTERED_EMAIL && estadoActual.clave == MOCKED_REGISTERED_PASSWORD) {
-                // Éxito
-                _estado.update {
-                    it.copy(
-                        isLoading = false,
-                        isLoginSuccessful = true,
-                        loginError = null
-                    )
-                }
-            } else {
-                // Falla
-                _estado.update {
-                    it.copy(
-                        isLoading = false,
-                        isLoginSuccessful = false,
-                        loginError = "Credenciales incorrectas. Verifica tu correo o contraseña."
-                    )
-                }
-            }
-        }
-    }
-
-
-    // =======================================================
-    // MODIFICADO: Método de Registro Simulado
-    // Actualiza las credenciales simuladas al registrar.
-    // =======================================================
+    // La UI llama a registrarUsuarioSimulado(), y esta función contiene la llamada real a la API
     fun registrarUsuarioSimulado() {
-        if (validarFormulario()) {
-            _estado.update { it.copy(isLoading = true) }
-            viewModelScope.launch {
-                delay(1500)
-                // SIMULACIÓN: Guardamos el usuario registrado como el "único"
-                MOCKED_REGISTERED_EMAIL = _estado.value.correo
-                MOCKED_REGISTERED_PASSWORD = _estado.value.clave
+        val currentState = estado.value
 
-                _estado.update {
-                    it.copy(
-                        isLoading = false,
-                        isRegisteredSuccessful = true
-                    )
-                }
-            }
-        }
-    }
-
-    // =======================================================
-    // TU FUNCIÓN ORIGINAL validarFormulario (se mantiene)
-    // =======================================================
-    fun validarFormulario(): Boolean {
-        val estadoActual = _estado.value
-        // 1. Definición de Errores: Se evalúa cada campo
-        val errores = UsuarioErrores(
-            nombre = if (estadoActual.nombre.isBlank()) "NO PUEDE ESTAR VACÍO" else null,
-
-            // Usamos contains("@") para una validación básica de correo
-            correo = if (!estadoActual.correo.contains("@")) "CORREO INVÁLIDO" else null,
-
-            // Verificamos la longitud de la clave
-            clave = if (estadoActual.clave.length < 8) "DEBE TENER AL MENOS 8 CARACTERES" else null,
-
-            direccion = if (estadoActual.direccion.isBlank()) "NO PUEDE ESTAR VACÍO" else null
+        // 1. Prepara el cuerpo de la petición con los datos actuales
+        val requestBody = RegistroRequest(
+            correo = currentState.correo,
+            claveHash = currentState.clave,
+            nombre = currentState.nombre.ifEmpty { null }
         )
 
-        // 2. Comprobación de Existencia de Errores:
-        val hayErrores = listOfNotNull(
-            errores.nombre,
-            errores.correo,
-            errores.clave,
-            errores.direccion
-        ).isNotEmpty()
+        // 2. Inicializa el estado para el registro (Cargando)
+        _estado.value = currentState.copy(
+            isLoading = true,
+            loginError = null,
+            isRegisteredSuccessful = false,
+            errores = UsuarioErrores() // Limpiamos errores de validación locales antes de la llamada API
+        )
 
-        // 3. Actualizar el Estado de la UI:
-        _estado.update {
-            it.copy(errores = errores)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // 3. Llama al endpoint de ORDS "registroUsuario"
+                val response = RetrofitClient.userService.registerUser(requestBody)
+
+                withContext(Dispatchers.Main) {
+                    // Finaliza la carga
+                    _estado.value = _estado.value.copy(isLoading = false)
+
+                    if (response.isSuccessful) {
+                        // CÓDIGO 201: Éxito en el registro
+                        _estado.value = _estado.value.copy(isRegisteredSuccessful = true)
+                    } else {
+                        // CÓDIGOS DE ERROR (400, 409, 500)
+                        handleApiError(response.code())
+                    }
+                }
+            } catch (e: Exception) {
+                // Error de red (Timeouts, servidor caído)
+                withContext(Dispatchers.Main) {
+                    _estado.value = _estado.value.copy(
+                        isLoading = false,
+                        loginError = "Error de conexión: No se pudo contactar al servidor."
+                    )
+                }
+            }
         }
+    }
 
-        // 4. Retornar Resultado:
-        return !hayErrores
+    fun iniciarSesion() {
+        val currentState = estado.value
+        val requestBody = LoginRequest(
+            correo = currentState.correo,
+            claveHash = currentState.clave
+        )
+
+        // Inicializa el estado para el login (Cargando)
+        _estado.value = currentState.copy(
+            isLoading = true,
+            loginError = null,
+            isLoginSuccessful = false
+        )
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Llama al endpoint de ORDS "loginUsuario" (o el que corresponda)
+                val response = RetrofitClient.userService.loginUser(requestBody)
+
+                withContext(Dispatchers.Main) {
+                    // Finaliza la carga
+                    _estado.value = _estado.value.copy(isLoading = false)
+
+                    if (response.isSuccessful) {
+                        // CÓDIGO 200: Éxito en el login
+                        _estado.value = _estado.value.copy(isLoginSuccessful = true)
+                    } else {
+                        // CÓDIGOS DE ERROR (401, 404, 500)
+                        handleApiError(response.code())
+                    }
+                }
+            } catch (e: Exception) {
+                // Error de red
+                withContext(Dispatchers.Main) {
+                    _estado.value = _estado.value.copy(
+                        isLoading = false,
+                        loginError = "Error de conexión. Verifica tu red o la URL."
+                    )
+                }
+            }
+        }
+    }
+
+    // Función central para manejar los códigos de estado HTTP
+    private fun handleApiError(statusCode: Int) {
+        val errorMessage = when (statusCode) {
+            400 -> "Datos incompletos o inválidos (Bad Request)."
+            401 -> "Credenciales incorrectas (Unauthorized)."
+            409 -> "El correo ya está registrado (Conflict)."
+            500 -> "Error interno del servidor. Intenta más tarde."
+            else -> "Error del servidor: Código $statusCode."
+        }
+        _estado.value = _estado.value.copy(loginError = errorMessage)
     }
 }

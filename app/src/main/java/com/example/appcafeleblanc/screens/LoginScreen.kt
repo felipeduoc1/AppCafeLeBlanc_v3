@@ -1,3 +1,5 @@
+// Contenido FINAL y CORREGIDO para: screens/LoginScreen.kt
+
 package com.example.appcafeleblanc.screens
 
 import androidx.compose.foundation.layout.*
@@ -8,29 +10,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.lifecycle.viewmodel.compose.viewModel // <-- IMPORTANTE
-import com.example.appcafeleblanc.viewmodels.UsuarioViewModel // <-- IMPORTANTE
+import com.example.appcafeleblanc.viewmodels.UsuarioViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     navController: NavController,
-    // CAMBIO CLAVE: Quita '= viewModel()' para forzar la inyección del NavGraph
     viewModel: UsuarioViewModel
 ) {
-    // 1. OBTENER EL ESTADO DESDE EL VIEWMODEL
+    // 1. Obtiene el estado de la UI desde el ViewModel.
     val uiState by viewModel.estado.collectAsState()
 
-    // 2. EFECTO PARA NAVEGACIÓN EXITOSA
+    // 2. Efecto para manejar la navegación UNA SOLA VEZ cuando el login es exitoso.
     LaunchedEffect(uiState.isLoginSuccessful) {
         if (uiState.isLoginSuccessful) {
-            // Limpiar el estado de éxito para evitar re-navegación
-            viewModel.clearLoginState()
-            // Navegar a la pantalla principal
+            // Navega a la pantalla principal.
             navController.navigate("home") {
-                // Limpia la pila para que no se pueda volver al login con el botón de atrás
+                // Limpia la pila de navegación para que el usuario no pueda
+                // volver a la pantalla de login con el botón de "atrás".
                 popUpTo("login") { inclusive = true }
             }
+            // NOTA: Para una app más robusta, aquí llamarías a una función
+            // en el ViewModel para "consumir" el evento de login exitoso
+            // y evitar re-navegaciones accidentales.
         }
     }
 
@@ -54,32 +56,32 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // =================================================
-            // Usar el estado y las funciones del ViewModel
-            // =================================================
+            // --- Campo de Correo ---
             OutlinedTextField(
                 value = uiState.correo,
-                onValueChange = { viewModel.onCorreoChange(it) }, // Usar onCorreoChange
+                onValueChange = { viewModel.onCorreoChange(it) }, // Llama a la función del ViewModel
                 label = { Text("Correo electrónico") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isLoading // Deshabilitar si está cargando
+                enabled = !uiState.isLoading, // Se deshabilita durante la carga
+                singleLine = true
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // --- Campo de Contraseña ---
             OutlinedTextField(
                 value = uiState.clave,
-                onValueChange = { viewModel.onClaveChange(it) }, // Usar onClaveChange
+                onValueChange = { viewModel.onClaveChange(it) }, // Llama a la función del ViewModel
                 label = { Text("Contraseña") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isLoading // Deshabilitar si está cargando
+                enabled = !uiState.isLoading, // Se deshabilita durante la carga
+                singleLine = true
             )
-            // =================================================
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // MOSTRAR ERROR DE LOGIN
+            // --- Muestra de Errores ---
             uiState.loginError?.let { error ->
                 Text(
                     text = error,
@@ -89,12 +91,14 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
+            // --- Botón de Ingreso ---
             Button(
                 onClick = {
-                    viewModel.login() // Llamar a la función de login del ViewModel
+                    // CORRECCIÓN: Llamar a la función correcta del ViewModel
+                    viewModel.iniciarSesion()
                 },
                 modifier = Modifier.fillMaxWidth(),
-                // Deshabilitar si está cargando o si los campos están vacíos
+                // Se habilita solo si no está cargando y los campos no están vacíos
                 enabled = !uiState.isLoading && uiState.correo.isNotBlank() && uiState.clave.isNotBlank()
             ) {
                 if (uiState.isLoading) {
@@ -109,9 +113,10 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // --- Botón para ir a Registro ---
             TextButton(
                 onClick = {
-                    // Asegúrate de que "registro" es la ruta correcta en tu NavGraph.kt
+                    // Navega a la ruta "registro" definida en tu NavGraph
                     navController.navigate("registro")
                 }
             ) {
